@@ -1,6 +1,6 @@
 package org.example.project.model.enums;
 
-public enum Grade {
+public enum Grade{
     A_PLUS("A+", 4.0),
     A("A", 4.0),
     A_MINUS("A-", 3.7),
@@ -38,4 +38,6 @@ public enum Grade {
                 return g;
             }
         }
-        throw new IllegalArgumentException("Invalid grade: " + input
+        throw new IllegalArgumentException("Invalid grade: " + input);
+    }
+}
