@@ -38,22 +38,6 @@ public class Student {
     @OneToMany(mappedBy = "student", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
     private Set<Takes> takes;
 
-    public Set<Section> getTakenSections() {
-        return takes.stream()
-                .map(Takes::getSection)
-                .collect(Collectors.toSet());
-    }
-
-    public Double calculateGpa(){
-        return takes.stream()
-                .mapToDouble(t -> t == null ? 0 : t.getGrade().getValue()).sum();
-    }
-
-    public Set<Course> getTakenCourses() {
-        return takes.stream()
-                .map(Takes::getSection).map(Section::getCourse)
-                .collect(Collectors.toSet());
-    }
 
     public void enrollToSection(Section section){
         Takes takes = new Takes();

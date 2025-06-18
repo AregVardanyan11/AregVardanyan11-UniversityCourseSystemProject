@@ -32,11 +32,14 @@ public class Section {
     private Character letter;
 
     @Column(nullable = false)
-    private Year year;
+    private Integer year;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Semester semester;
+
+    @Column(nullable = false)
+    private boolean finished = false;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private Instructor instructor;
@@ -55,15 +58,11 @@ public class Section {
     @OneToMany(mappedBy = "section", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
     private Set<Takes> takes;
 
-    public Set<Student> getEnrolledStudents() {
-        return takes.stream()
-                .map(Takes::getStudent)
-                .collect(Collectors.toSet());
-    }
-
     public void enrollTheStudent(Student student){
         Takes takes = new Takes();
         takes.setSection(this);
         takes.setStudent(student);
     }
+
+
 }
