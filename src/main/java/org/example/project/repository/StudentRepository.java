@@ -1,5 +1,6 @@
 package org.example.project.repository;
 
+import jakarta.validation.constraints.NotBlank;
 import org.example.project.model.Course;
 import org.example.project.model.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -26,4 +27,6 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
                 WHERE g!=null AND st.id = :studentId
         """)
     Float calculateGpa(Long studentId);
+
+    boolean existsByStudentId(@NotBlank String studentId);
 }

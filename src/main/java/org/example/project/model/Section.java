@@ -63,6 +63,4 @@ public class Section {
         takes.setSection(this);
         takes.setStudent(student);
     }
-
-
 }

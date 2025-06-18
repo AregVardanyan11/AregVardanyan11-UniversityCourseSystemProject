@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
-import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -48,5 +47,4 @@ public class Course {
             inverseJoinColumns = @JoinColumn(name = "prerequisite_id")
     )
     private Set<Course> prerequisites;
-
 }
