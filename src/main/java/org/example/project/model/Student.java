@@ -25,6 +25,10 @@ public class Student {
     private String name;
 
     @NotBlank
+    @Column(nullable = false)
+    private String surname;
+
+    @NotBlank
     @Column(unique = true, nullable = false)
     private String studentId;
 
@@ -36,12 +40,22 @@ public class Student {
     private User user;
 
     @OneToMany(mappedBy = "student", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
-    private Set<Takes> takes;
+    private Set<Takes> taked;
 
 
     public void enrollToSection(Section section){
         Takes takes = new Takes();
         takes.setSection(section);
         takes.setStudent(this);
+        taked.add(takes);
+        section.setReservedSeats(section.getReservedSeats() + 1);
+    }
+
+    public void unenrollFromSection(Section section){
+        Takes takes = new Takes();
+        takes.setSection(section);
+        takes.setStudent(this);
+        taked.remove(takes);
+        section.setReservedSeats(section.getReservedSeats() - 1);
     }
 }

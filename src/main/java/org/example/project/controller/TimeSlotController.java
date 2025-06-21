@@ -1,19 +1,13 @@
 package org.example.project.controller;
 
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.project.dto.request.CreateStudentDto;
 import org.example.project.dto.request.CreateTimeSlotDto;
-import org.example.project.dto.response.StudentResponseDto;
+import org.example.project.dto.request.UpdateTimeSlotDto;
 import org.example.project.dto.response.TimeSlotResponseDto;
-import org.example.project.service.StudentService;
 import org.example.project.service.TimeSlotService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Set;
@@ -33,5 +27,38 @@ public class TimeSlotController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
         return ResponseEntity.ok(slots);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<TimeSlotResponseDto>> getAllTimeSlots() {
+        return ResponseEntity.ok(timeSlotService.getAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getTimeSlotById(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(timeSlotService.getById(id));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateTimeSlot(@PathVariable Long id, @Valid @RequestBody UpdateTimeSlotDto dto) {
+        try {
+            return ResponseEntity.ok(timeSlotService.updateTimeSlot(id, dto));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteTimeSlot(@PathVariable Long id) {
+        try {
+            timeSlotService.deleteTimeSlot(id);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

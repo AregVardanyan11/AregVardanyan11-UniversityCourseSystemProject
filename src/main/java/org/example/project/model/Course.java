@@ -47,4 +47,6 @@ public class Course {
             inverseJoinColumns = @JoinColumn(name = "prerequisite_id")
     )
     private Set<Course> prerequisites;
+
+
 }

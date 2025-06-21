@@ -1,15 +1,12 @@
 package org.example.project.dto.request;
 
-import jakarta.validation.constraints.*;
-import lombok.*;
-
-import java.util.Set;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import lombok.Data;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class CreateSectionDto {
+public class UpdateSectionDto {
     @NotNull
     private Long courseId;
 
@@ -26,10 +23,12 @@ public class CreateSectionDto {
     private Long instructorId;
 
     @NotNull
+    @Pattern(regexp = "^.+\\.pdf$", message = "Syllabus path must point to a PDF file")
+    private String syllabusPath;
+
     @Min(1)
+    @NotNull
     private Integer maximumSeats;
 
     private boolean finished;
-
-    private Set<Long> timeSlotIds;
 }

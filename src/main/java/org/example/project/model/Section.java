@@ -52,15 +52,28 @@ public class Section {
     @Column(nullable = false)
     private Integer maximumSeats;
 
+    @Column
+    private Integer reservedSeats = 0;
+
     @OneToMany(mappedBy = "section", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     Set<TimeSlot> timeSlots;
 
     @OneToMany(mappedBy = "section", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
-    private Set<Takes> takes;
+    private Set<Takes> taked;
 
     public void enrollTheStudent(Student student){
         Takes takes = new Takes();
         takes.setSection(this);
         takes.setStudent(student);
+        taked.add(takes);
+        reservedSeats++;
+    }
+
+    public void unenrollTheStudent(Student student){
+        Takes takes = new Takes();
+        takes.setSection(this);
+        takes.setStudent(student);
+        taked.remove(takes);
+        reservedSeats--;
     }
 }

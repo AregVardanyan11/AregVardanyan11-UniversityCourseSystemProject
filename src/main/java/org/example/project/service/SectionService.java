@@ -1,11 +1,17 @@
 package org.example.project.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.project.controller.TimeSlotController;
+import org.example.project.dto.criteria.SectionSearchCriteria;
 import org.example.project.dto.request.CreateSectionDto;
+import org.example.project.dto.request.UpdateSectionDto;
+import org.example.project.dto.response.CourseResponseDto;
 import org.example.project.dto.response.SectionResponseDto;
+import org.example.project.dto.response.TimeSlotResponseDto;
 import org.example.project.model.*;
 import org.example.project.model.enums.Semester;
 import org.example.project.repository.*;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,34 +40,75 @@ public class SectionService {
         Instructor instructor = instructorRepository.findById(dto.getInstructorId())
                 .orElseThrow(() -> new IllegalArgumentException("Instructor not found"));
 
-        Set<TimeSlot> timeSlots = dto.getTimeSlotIds() == null ? Set.of() :
-                timeSlotRepository.findAllById(dto.getTimeSlotIds()).stream().collect(Collectors.toSet());
-
         Section section = Section.builder()
                 .course(course)
                 .letter(dto.getLetter())
                 .year(dto.getYear())
                 .semester(Semester.valueOf(dto.getSemester()))
                 .instructor(instructor)
-                .syllabusPath(dto.getSyllabusPath())
                 .maximumSeats(dto.getMaximumSeats())
                 .finished(dto.isFinished())
-                .timeSlots(timeSlots)
                 .build();
 
         Section saved = sectionRepository.save(section);
 
+        return map(saved);
+    }
+
+    public List<SectionResponseDto> getSections(SectionSearchCriteria criteria, PageRequest year) {
+        return sectionRepository.search(criteria, year).stream().map(this::map).collect(Collectors.toList());
+    }
+
+    private SectionResponseDto map(Section saved) {
         return SectionResponseDto.builder()
                 .id(saved.getId())
-                .courseId(course.getId())
+                .courseId(saved.getCourse().getId())
                 .letter(saved.getLetter())
                 .year(saved.getYear())
                 .semester(saved.getSemester().toString())
-                .instructorId(instructor.getId())
-                .syllabusPath(saved.getSyllabusPath())
+                .instructorId(saved.getInstructor().getId())
                 .maximumSeats(saved.getMaximumSeats())
+                .availableSeats(saved.getMaximumSeats()-saved.getReservedSeats())
                 .finished(saved.isFinished())
-                .timeSlotIds(saved.getTimeSlots().stream().map(TimeSlot::getId).collect(Collectors.toSet()))
+                .timeSlotIds(saved.getTimeSlots().stream().map(this::map).collect(Collectors.toSet()))
                 .build();
     }
+
+    private TimeSlotResponseDto map(TimeSlot saved) {
+        return TimeSlotResponseDto.builder()
+                .classroom(saved.getClassroom())
+                .day(saved.getDay())
+                .startTime(saved.getStartTime())
+                .endTime(saved.getEndTime()).build();
+    }
+
+    @Transactional
+    public SectionResponseDto updateSection(Long id, UpdateSectionDto dto) {
+        Section section = sectionRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Section not found with id " + id));
+
+        Course course = courseRepository.findById(dto.getCourseId())
+                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
+        Instructor instructor = instructorRepository.findById(dto.getInstructorId())
+                .orElseThrow(() -> new IllegalArgumentException("Instructor not found"));
+
+        section.setCourse(course);
+        section.setLetter(dto.getLetter());
+        section.setYear(dto.getYear());
+        section.setSemester(Semester.valueOf(dto.getSemester()));
+        section.setInstructor(instructor);
+        section.setSyllabusPath(dto.getSyllabusPath());
+        section.setMaximumSeats(dto.getMaximumSeats());
+        section.setFinished(dto.isFinished());
+
+        return map(sectionRepository.save(section));
+    }
+
+    @Transactional
+    public void deleteSection(Long id) {
+        Section section = sectionRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Section not found with id " + id));
+        sectionRepository.delete(section);
+    }
+
 }

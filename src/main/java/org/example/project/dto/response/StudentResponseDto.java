@@ -10,6 +10,7 @@ import lombok.experimental.SuperBuilder;
 public class StudentResponseDto extends UserResponseDto{
     private Long id;
     private String name;
+    private String surname;
     private String studentId;
     private Long userId;
     private Long facultyId;

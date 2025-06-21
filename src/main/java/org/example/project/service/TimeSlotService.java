@@ -3,6 +3,7 @@ package org.example.project.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.project.dto.request.CreateTimeSlotDto;
+import org.example.project.dto.request.UpdateTimeSlotDto;
 import org.example.project.dto.response.TimeSlotResponseDto;
 import org.example.project.model.Section;
 import org.example.project.model.TimeSlot;
@@ -56,5 +57,58 @@ public class TimeSlotService {
                 .sectionId(section.getId())
                 .build();
     }
+
+    @Transactional
+    public List<TimeSlotResponseDto> getAll() {
+        return timeSlotRepository.findAll().stream()
+                .map(this::map)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public TimeSlotResponseDto getById(Long id) {
+        TimeSlot slot = timeSlotRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("TimeSlot not found with id: " + id));
+        return map(slot);
+    }
+
+    @Transactional
+    public TimeSlotResponseDto updateTimeSlot(Long id, UpdateTimeSlotDto dto) {
+        TimeSlot slot = timeSlotRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("TimeSlot not found with id: " + id));
+
+        boolean hasConflict = timeSlotRepository.existsByClassroomAndDayAndTimeOverlap(
+                dto.getClassroom(), dto.getDay(), dto.getStartTime(), dto.getEndTime());
+
+        if (hasConflict) {
+            throw new IllegalArgumentException("Time conflict detected in classroom " + dto.getClassroom() + " on " + dto.getDay());
+        }
+
+        slot.setClassroom(dto.getClassroom());
+        slot.setDay(dto.getDay());
+        slot.setStartTime(dto.getStartTime());
+        slot.setEndTime(dto.getEndTime());
+
+        return map(slot);
+    }
+
+    @Transactional
+    public void deleteTimeSlot(Long id) {
+        TimeSlot slot = timeSlotRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("TimeSlot not found with id: " + id));
+        timeSlotRepository.delete(slot);
+    }
+
+    private TimeSlotResponseDto map(TimeSlot slot) {
+        return TimeSlotResponseDto.builder()
+                .id(slot.getId())
+                .classroom(slot.getClassroom())
+                .day(slot.getDay())
+                .startTime(slot.getStartTime())
+                .endTime(slot.getEndTime())
+                .sectionId(slot.getSection().getId())
+                .build();
+    }
+
 
 }

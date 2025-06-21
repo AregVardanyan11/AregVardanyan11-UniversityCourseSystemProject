@@ -16,7 +16,7 @@ public class SectionResponseDto {
     private String semester;
     private boolean finished;
     private Long instructorId;
-    private String syllabusPath;
     private Integer maximumSeats;
-    private Set<Long> timeSlotIds;
+    private Integer availableSeats;
+    private Set<TimeSlotResponseDto> timeSlotIds;
 }
