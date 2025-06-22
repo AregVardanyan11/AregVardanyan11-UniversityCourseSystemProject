@@ -76,4 +76,9 @@ public class Section {
         taked.remove(takes);
         reservedSeats--;
     }
+
+    @Override
+    public String toString(){
+        return course.toString() + letter;
+    }
 }

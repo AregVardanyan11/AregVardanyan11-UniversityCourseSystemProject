@@ -2,6 +2,7 @@ package org.example.project.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.project.model.enums.UserRole;
 
 @Entity
 @Builder
@@ -26,4 +27,7 @@ public class User {
 
     @Column(unique = true)
     private String imagePath;
+
+
+    private UserRole role;
 }

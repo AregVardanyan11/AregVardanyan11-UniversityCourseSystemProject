@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import org.example.project.dto.criteria.UserSearchCriteria;
 import org.example.project.model.User;
+import org.example.project.model.enums.UserRole;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,4 +31,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Page<User> search(UserSearchCriteria criteria, Pageable pageable);
 
     Optional<User> findByUsernameOrEmail(@NotBlank String username, @Email @NotBlank String email);
+
+    boolean existsByRole(UserRole role);
 }

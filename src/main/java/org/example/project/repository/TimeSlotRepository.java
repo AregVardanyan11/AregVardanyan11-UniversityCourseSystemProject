@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Set;
 
 public interface TimeSlotRepository extends JpaRepository<TimeSlot, Long> {
@@ -30,6 +31,7 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlot, Long> {
             @Param("endTime") LocalTime endTime
     );
 
+    List<TimeSlot> findAllByClassroomAndDayOrderByStartTime(String classroom, WeekDay day);
 
 
 }

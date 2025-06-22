@@ -2,12 +2,21 @@ package org.example.project.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.project.dto.criteria.UserSearchCriteria;
+import org.example.project.dto.request.LoginRequest;
 import org.example.project.dto.request.CreateUserDto;
+import org.example.project.dto.request.RegisterRequest;
 import org.example.project.dto.request.UpdateUserDto;
+import org.example.project.dto.response.AuthResponseDto;
 import org.example.project.dto.response.UserResponseDto;
 import org.example.project.model.User;
+import org.example.project.model.enums.UserRole;
 import org.example.project.repository.UserRepository;
+import org.example.project.security.jwt.JwtUtil;
+import org.example.project.security.jwt.UserPrincipal;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +29,9 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
     @Transactional
     public UserResponseDto addUser(CreateUserDto dto) {
@@ -88,5 +100,51 @@ public class UserService {
                 .email(user.getEmail())
                 .imagePath(user.getImagePath())
                 .build();
+    }
+
+
+    public AuthResponseDto login(LoginRequest request) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow();
+
+        UserPrincipal principal = new UserPrincipal(user); // convert
+
+        return AuthResponseDto.builder()
+                .accessToken(jwtUtil.generateAccessToken(principal))
+                .refreshToken(jwtUtil.generateRefreshToken(principal))
+                .role(user.getRole().name())
+                .build();
+    }
+
+    public void register(RegisterRequest request) {
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+
+        User user = User.builder()
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(UserRole.valueOf(request.getRole()))
+                .build();
+
+        userRepository.save(user);
+    }
+
+    public String refresh(String refreshToken) {
+        if (!jwtUtil.isVerified(refreshToken)) {
+            throw new IllegalArgumentException("Invalid token");
+        }
+
+        String username = jwtUtil.getUsername(refreshToken);
+        User user = userRepository.findByUsername(username).orElseThrow();
+        return jwtUtil.generateAccessToken(new UserPrincipal(user));
+    }
+
+    public boolean existsAdmin() {
+        return userRepository.existsByRole(UserRole.ROLE_ADMIN);
     }
 }

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.project.dto.request.CreateTimeSlotDto;
 import org.example.project.dto.request.UpdateTimeSlotDto;
 import org.example.project.dto.response.TimeSlotResponseDto;
+import org.example.project.model.enums.WeekDay;
 import org.example.project.service.TimeSlotService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,8 +31,14 @@ public class TimeSlotController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TimeSlotResponseDto>> getAllTimeSlots() {
-        return ResponseEntity.ok(timeSlotService.getAll());
+    public ResponseEntity<?> getAllTimeSlots(@RequestParam String classroom,
+                                             @RequestParam WeekDay day) {
+        if (classroom == null || day == null) {
+            return ResponseEntity.ok(timeSlotService.getAll());
+
+        }
+        return ResponseEntity.ok(timeSlotService.getSchedule(classroom, day));
+
     }
 
     @GetMapping("/{id}")

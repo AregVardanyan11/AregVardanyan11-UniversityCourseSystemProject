@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.project.dto.criteria.CourseSearchCriteria;
 import org.example.project.dto.request.CreateCourseDto;
 import org.example.project.dto.request.UpdateCourseDto;
+import org.example.project.dto.response.CourseHierarchy;
 import org.example.project.dto.response.CourseResponseDto;
 import org.example.project.service.CourseService;
 import org.springframework.core.io.InputStreamResource;
@@ -52,11 +53,11 @@ public class CourseController {
     }
 
     @GetMapping("/{id}/hierarchy-image")
-    public ResponseEntity<InputStreamResource> getHierarchyImage(@PathVariable Long id) {
-        byte[] image = courseService.generateHierarchyImage(id);
-        return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_PNG)
-                .contentLength(image.length)
-                .body(new InputStreamResource(new ByteArrayInputStream(image)));
+    public ResponseEntity<?> getHierarchyImage(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(courseService.getHierarchy(id));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
     }
 }

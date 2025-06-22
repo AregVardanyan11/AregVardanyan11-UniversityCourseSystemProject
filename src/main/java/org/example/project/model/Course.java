@@ -48,5 +48,9 @@ public class Course {
     )
     private Set<Course> prerequisites;
 
+    @Override
+    public String toString(){
+        return faculty.getName() + numCode;
+    }
 
 }

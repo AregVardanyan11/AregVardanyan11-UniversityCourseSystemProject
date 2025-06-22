@@ -5,8 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.example.project.dto.request.CreateTimeSlotDto;
 import org.example.project.dto.request.UpdateTimeSlotDto;
 import org.example.project.dto.response.TimeSlotResponseDto;
+import org.example.project.dto.response.TimeSlotsByRoomDto;
 import org.example.project.model.Section;
 import org.example.project.model.TimeSlot;
+import org.example.project.model.enums.WeekDay;
 import org.example.project.repository.SectionRepository;
 import org.example.project.repository.TimeSlotRepository;
 import org.springframework.stereotype.Service;
@@ -98,6 +100,25 @@ public class TimeSlotService {
                 .orElseThrow(() -> new IllegalArgumentException("TimeSlot not found with id: " + id));
         timeSlotRepository.delete(slot);
     }
+
+    @Transactional
+    public List<TimeSlotsByRoomDto> getSchedule(String classroom, WeekDay day) {
+        return timeSlotRepository.findAllByClassroomAndDayOrderByStartTime(classroom, day)
+                .stream()
+                .map(slot -> {
+                    var section = slot.getSection();
+                    return TimeSlotsByRoomDto.builder()
+                            .id(slot.getId())
+                            .startTime(slot.getStartTime())
+                            .endTime(slot.getEndTime())
+                            .sectionId(section.getId())
+                            .fullSectionCourseName(section.toString())
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+
 
     private TimeSlotResponseDto map(TimeSlot slot) {
         return TimeSlotResponseDto.builder()
