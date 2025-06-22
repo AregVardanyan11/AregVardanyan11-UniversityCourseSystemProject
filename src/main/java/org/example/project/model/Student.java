@@ -64,4 +64,13 @@ public class Student {
         taked.remove(takes);
         section.setReservedSeats(section.getReservedSeats() - 1);
     }
+
+    public Set<Course> getCourses(){
+        return taked.stream().map(Takes::getSection).map(Section::getCourse).collect(Collectors.toSet());
+    }
+
+    public Set<Course> getPassedCourses(){
+        return taked.stream().filter(takes -> takes.getGrade() != null && takes.getGrade().getValue()!=0)
+                .map(Takes::getSection).map(Section::getCourse).collect(Collectors.toSet());
+    }
 }

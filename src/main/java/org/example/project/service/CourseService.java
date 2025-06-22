@@ -8,8 +8,12 @@ import org.example.project.dto.response.CourseHierarchy;
 import org.example.project.dto.response.CourseResponseDto;
 import org.example.project.model.Course;
 import org.example.project.model.Faculty;
+import org.example.project.model.Section;
+import org.example.project.model.Student;
+import org.example.project.model.enums.Semester;
 import org.example.project.repository.CourseRepository;
 import org.example.project.repository.FacultyRepository;
+import org.example.project.repository.StudentRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +29,7 @@ public class CourseService {
 
     private final CourseRepository courseRepository;
     private final FacultyRepository facultyRepository;
+    private final StudentRepository studentRepository;
 
     @Transactional
     public List<CourseResponseDto> addCourses(List<CreateCourseDto> dtos) {
@@ -152,5 +157,28 @@ public class CourseService {
                                 .collect(Collectors.toSet())
                 )
                 .build();
+    }
+
+    public Set<Course> getAllPassedCourses(Student student){
+        return student.getPassedCourses();
+    }
+
+    public boolean isCourseAvailable(Student student, Long courseId) {
+        Optional<Course> course = courseRepository.findById(courseId);
+        Set<Course> passedCourse = getAllPassedCourses(student);
+        return !course.get().getPrerequisites().stream().filter(c -> !passedCourse.contains(c)).toList().isEmpty();
+    }
+
+    public List<Course> getAvailableCourses(Student student){
+        return courseRepository.findAll().stream().filter(c -> isCourseAvailable(student, c.getId())).toList();
+    }
+
+    public Map<Course, List<Section>> getAvailableSections(Student student){
+        return getAllPassedCourses(student).stream().collect(Collectors.toMap(
+                course -> course,
+                course -> course.getSections().stream()
+                        .filter(section -> !section.isFinished())
+                        .toList()
+        ));
     }
 }

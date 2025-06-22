@@ -23,4 +23,5 @@ public class Grade {
     @Max(4)
     @Column(nullable = false)
     private Float value;
+
 }

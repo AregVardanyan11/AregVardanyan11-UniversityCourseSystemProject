@@ -8,6 +8,7 @@ import org.example.project.dto.request.UpdateUserDto;
 import org.example.project.dto.response.UserResponseDto;
 import org.example.project.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public ResponseEntity<?> createUser(@Valid @RequestBody CreateUserDto dto) {
         try {
             UserResponseDto user = userService.addUser(dto);
@@ -30,11 +32,13 @@ public class UserController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public ResponseEntity<List<UserResponseDto>> getAllUsers(UserSearchCriteria criteria) {
         return ResponseEntity.ok(userService.search(criteria, criteria.buildPageRequest("username")));
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(userService.getById(id));
@@ -44,6 +48,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public ResponseEntity<?> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserDto dto) {
         try {
             return ResponseEntity.ok(userService.updateUser(id, dto));
@@ -53,6 +58,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         try {
             userService.deleteUser(id);

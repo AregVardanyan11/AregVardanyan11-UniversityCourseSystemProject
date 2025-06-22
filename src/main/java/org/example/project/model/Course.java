@@ -48,9 +48,13 @@ public class Course {
     )
     private Set<Course> prerequisites;
 
+    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
+    private Set<Section> sections;
+
     @Override
     public String toString(){
         return faculty.getName() + numCode;
     }
+
 
 }
