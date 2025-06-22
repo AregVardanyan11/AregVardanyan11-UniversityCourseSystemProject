@@ -3,6 +3,7 @@ package org.example.project.security.config;
 import lombok.RequiredArgsConstructor;
 
 import org.example.project.dto.request.RegisterRequest;
+import org.example.project.repository.UserRepository;
 import org.example.project.security.jwt.JwtAuthenticationFilter;
 import org.example.project.security.oauth2.OAuth2SuccessHandler;
 import org.example.project.security.oauth2.OAuth2UserServiceImpl;
@@ -35,7 +36,7 @@ public class SecurityConfig {
     private final OAuth2UserServiceImpl oAuth2UserService;
 
     @Bean
-    public CommandLineRunner insertRolesAndCreateAdmin(UserService userService) {
+    public CommandLineRunner insertRolesAndCreateAdmin(UserService userService, UserRepository userRepository) {
         return args -> {
             if(!userService.existsAdmin()){
                 createAdmin(userService);
@@ -47,7 +48,7 @@ public class SecurityConfig {
         RegisterRequest registerRequest = new RegisterRequest();
         registerRequest.setUsername("admin");
         registerRequest.setPassword("1234");
-        registerRequest.setEmail("admin@localhost");
+        registerRequest.setEmail("aregvardanyan23@gmail.com");
         registerRequest.setRole("ROLE_ADMIN");
         userService.register(registerRequest);
 

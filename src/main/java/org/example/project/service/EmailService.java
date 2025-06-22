@@ -17,7 +17,7 @@ public class EmailService {
         message.setSubject("Your OTP Code");
         message.setText("Your verification code is: " + otp);
         message.setFrom("your_email@gmail.com");
-
+        System.out.println("send mail to " + toEmail + " with code " + otp + "");
         mailSender.send(message);
     }
 }

@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 @RestController
 @RequestMapping("api/v1/grade")
 @RequiredArgsConstructor
@@ -20,6 +22,7 @@ public class GradeController {
     private final GradeService gradeService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public ResponseEntity<?> createGrade(@RequestBody Set<CreateGradeDto> dto) {
         List<GradeResponseDto> saved;
         try {
@@ -31,12 +34,14 @@ public class GradeController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR', 'INSTRUCTOR', 'STUDENT')")
     public ResponseEntity<List<GradeResponseDto>> getAllGrades() {
         List<GradeResponseDto> response = gradeService.getAll();
         return ResponseEntity.status(200).body(response);
     }
 
     @PutMapping("/{letter}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public ResponseEntity<GradeResponseDto> updateGrade(@PathVariable String letter,
                                                         @Valid @RequestBody UpdateGradeDto dto) {
         GradeResponseDto updated = gradeService.updateGrade(letter.toUpperCase(), dto);
@@ -44,12 +49,14 @@ public class GradeController {
     }
 
     @DeleteMapping("/{letter}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteGrade(@PathVariable String letter) {
         gradeService.deleteGrade(letter.toUpperCase());
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{letter}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR', 'INSTRUCTOR', 'STUDENT')")
     public ResponseEntity<GradeResponseDto> getGrade(@PathVariable String letter) {
         GradeResponseDto grade = gradeService.getGrade(letter.toUpperCase());
         return ResponseEntity.ok(grade);

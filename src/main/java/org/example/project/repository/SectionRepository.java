@@ -49,4 +49,5 @@ public interface SectionRepository extends JpaRepository<Section, Long> {
 """)
     Page<Section> search(SectionSearchCriteria criteria, Pageable pageable);
 
+    Section getById(Long id);
 }

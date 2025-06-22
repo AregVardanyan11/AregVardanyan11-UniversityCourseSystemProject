@@ -32,6 +32,8 @@ public class UserService {
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final OtpService otpService;
+    private final EmailService emailService;
 
     @Transactional
     public UserResponseDto addUser(CreateUserDto dto) {
@@ -147,4 +149,42 @@ public class UserService {
     public boolean existsAdmin() {
         return userRepository.existsByRole(UserRole.ROLE_ADMIN);
     }
+
+    public void initiateLogin(LoginRequest request) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        if (!isPrivileged(user.getRole())) {
+            throw new IllegalArgumentException("OTP login is for Admin/Moderator/Registrar only");
+        }
+
+        String otp = otpService.generateAndSendOtp(user.getUsername());
+    }
+
+    private boolean isPrivileged(UserRole role) {
+        return role == UserRole.ROLE_ADMIN ||
+                role == UserRole.ROLE_MODERATOR ||
+                role == UserRole.ROLE_REGISTRAR;
+    }
+
+    public AuthResponseDto verifyOtp(String username, String otp) {
+        if (!otpService.verify(username, otp)) {
+            throw new IllegalArgumentException("Invalid or expired OTP");
+        }
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        UserPrincipal principal = new UserPrincipal(user);
+        return AuthResponseDto.builder()
+                .accessToken(jwtUtil.generateAccessToken(principal))
+                .refreshToken(jwtUtil.generateRefreshToken(principal))
+                .role(user.getRole().name())
+                .build();
+    }
+
+
 }

@@ -6,9 +6,11 @@ import org.example.project.dto.request.CreateStudentDto;
 import org.example.project.dto.request.UpdateStudentDto;
 import org.example.project.dto.response.StudentResponseDto;
 import org.example.project.model.Faculty;
+import org.example.project.model.Section;
 import org.example.project.model.Student;
 import org.example.project.model.User;
 import org.example.project.repository.FacultyRepository;
+import org.example.project.repository.SectionRepository;
 import org.example.project.repository.StudentRepository;
 import org.example.project.repository.UserRepository;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +28,7 @@ public class StudentService {
     private final StudentRepository studentRepository;
     private final UserRepository userRepository;
     private final FacultyRepository facultyRepository;
+    private final SectionRepository sectionRepository;
 
     @Transactional
     public StudentResponseDto addStudent(CreateStudentDto dto) {
@@ -115,4 +118,13 @@ public class StudentService {
                 .build();
     }
 
+    public void enrollStudentByUsernameToSection(String username, Long sectionId) {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        Student student = studentRepository.getByUserId(user.getId());
+
+        Section section = sectionRepository.getById(sectionId);
+
+        section.enrollTheStudent(student);
+    }
 }

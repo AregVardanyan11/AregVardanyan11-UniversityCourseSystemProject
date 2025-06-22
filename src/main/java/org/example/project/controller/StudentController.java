@@ -8,6 +8,8 @@ import org.example.project.dto.request.UpdateStudentDto;
 import org.example.project.dto.response.StudentResponseDto;
 import org.example.project.service.StudentService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,19 +24,17 @@ public class StudentController {
 
     @PostMapping
     public ResponseEntity<?> createStudents(@Valid @RequestBody Set<CreateStudentDto> dto) {
-        List<StudentResponseDto> students;
         try {
-            students = studentService.addStudents(dto);
+            List<StudentResponseDto> students = studentService.addStudents(dto);
+            return ResponseEntity.ok(students);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
-        return ResponseEntity.ok(students);
     }
 
     @GetMapping
     public ResponseEntity<List<StudentResponseDto>> getAllStudents(StudentSearchCriteria criteria) {
-        List<StudentResponseDto> students;
-        students = studentService.findAll(criteria, criteria.buildPageRequest("user.username"));
+        List<StudentResponseDto> students = studentService.findAll(criteria, criteria.buildPageRequest("user.username"));
         return ResponseEntity.ok(students);
     }
 
@@ -63,6 +63,17 @@ public class StudentController {
         try {
             studentService.deleteStudent(id);
             return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/enroll/{sectionId}")
+    public ResponseEntity<?> enrollToSection(@PathVariable Long sectionId) {
+        try {
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            studentService.enrollStudentByUsernameToSection(username, sectionId);
+            return ResponseEntity.ok("Student enrolled successfully");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

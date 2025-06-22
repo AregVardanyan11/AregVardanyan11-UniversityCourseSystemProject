@@ -33,4 +33,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsernameOrEmail(@NotBlank String username, @Email @NotBlank String email);
 
     boolean existsByRole(UserRole role);
+
+    void removeByUsername(String username);
 }

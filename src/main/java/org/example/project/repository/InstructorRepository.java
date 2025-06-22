@@ -3,10 +3,13 @@ package org.example.project.repository;
 import jakarta.validation.constraints.NotBlank;
 import org.example.project.dto.criteria.InstructorSearchCriteria;
 import org.example.project.model.Instructor;
+import org.example.project.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+
+import java.util.Optional;
 
 public interface InstructorRepository extends JpaRepository<Instructor, Long> {
 
@@ -20,4 +23,6 @@ public interface InstructorRepository extends JpaRepository<Instructor, Long> {
           AND (:#{#criteria.instructorId} IS NULL OR LOWER(i.instructorId) LIKE LOWER(CONCAT(:#{#criteria.instructorId}, '%')))
     """)
     Page<Instructor> search(InstructorSearchCriteria criteria, Pageable pageable);
+
+    Optional<Instructor> findByUser(User user);
 }

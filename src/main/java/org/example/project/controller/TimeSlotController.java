@@ -17,28 +17,26 @@ import java.util.Set;
 @RequestMapping("/api/v1/time-slot")
 @RequiredArgsConstructor
 public class TimeSlotController {
+
     private final TimeSlotService timeSlotService;
 
     @PostMapping
     public ResponseEntity<?> createTimeSlots(@Valid @RequestBody Set<CreateTimeSlotDto> dto) {
-        List<TimeSlotResponseDto> slots;
         try {
-            slots = timeSlotService.addTimeSlots(dto);
+            List<TimeSlotResponseDto> slots = timeSlotService.addTimeSlots(dto);
+            return ResponseEntity.ok(slots);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
-        return ResponseEntity.ok(slots);
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllTimeSlots(@RequestParam String classroom,
-                                             @RequestParam WeekDay day) {
+    public ResponseEntity<?> getAllTimeSlots(@RequestParam(required = false) String classroom,
+                                             @RequestParam(required = false) WeekDay day) {
         if (classroom == null || day == null) {
             return ResponseEntity.ok(timeSlotService.getAll());
-
         }
         return ResponseEntity.ok(timeSlotService.getSchedule(classroom, day));
-
     }
 
     @GetMapping("/{id}")
@@ -69,3 +67,4 @@ public class TimeSlotController {
         }
     }
 }
+

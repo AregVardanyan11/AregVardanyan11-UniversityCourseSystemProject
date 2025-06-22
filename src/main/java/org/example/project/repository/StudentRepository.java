@@ -62,4 +62,5 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     """)
     Page<Student> search(StudentSearchCriteria criteria, Pageable pageable);
 
+    Student getByUserId(Long userId);
 }

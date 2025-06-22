@@ -22,13 +22,12 @@ public class InstructorController {
 
     @PostMapping
     public ResponseEntity<?> createInstructor(@Valid @RequestBody Set<CreateInstructorDto> dto) {
-        List<InstructorResponseDto> instructors;
         try {
-            instructors = instructorService.addInstructors(dto);
-        }catch (IllegalArgumentException e){
+            List<InstructorResponseDto> instructors = instructorService.addInstructors(dto);
+            return ResponseEntity.ok(instructors);
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.status(400).body(e.getMessage());
         }
-        return ResponseEntity.ok(instructors);
     }
 
     @GetMapping

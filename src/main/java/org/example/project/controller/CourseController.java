@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import java.io.ByteArrayInputStream;
 import java.util.List;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/course")
@@ -23,6 +25,7 @@ public class CourseController {
     private final CourseService courseService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public ResponseEntity<?> addCourse(@Valid @RequestBody List<CreateCourseDto> dto) {
         List<CourseResponseDto> response;
         try {
@@ -34,12 +37,14 @@ public class CourseController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR', 'INSTRUCTOR', 'STUDENT')")
     public ResponseEntity<List<CourseResponseDto>> getAllCourses(CourseSearchCriteria criteria) {
         List<CourseResponseDto> response = courseService.findAll(criteria, criteria.buildPageRequest("name"));
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public ResponseEntity<CourseResponseDto> updateCourse(@PathVariable Long id,
                                                           @Valid @RequestBody UpdateCourseDto dto) {
         CourseResponseDto response = courseService.updateCourse(id, dto);
@@ -47,12 +52,14 @@ public class CourseController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteCourse(@PathVariable Long id) {
         courseService.deleteCourse(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}/hierarchy-image")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR', 'INSTRUCTOR', 'STUDENT')") 
     public ResponseEntity<?> getHierarchyImage(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(courseService.getHierarchy(id));

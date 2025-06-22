@@ -62,6 +62,9 @@ public class Section {
     private Set<Takes> taked;
 
     public void enrollTheStudent(Student student){
+        if(reservedSeats >= maximumSeats){
+            throw new IllegalArgumentException("Section is full");
+        }
         Takes takes = new Takes();
         takes.setSection(this);
         takes.setStudent(student);
@@ -70,6 +73,9 @@ public class Section {
     }
 
     public void unenrollTheStudent(Student student){
+        if(reservedSeats <= 0){
+            throw new IllegalArgumentException("Student is not enrolled in this section");
+        }
         Takes takes = new Takes();
         takes.setSection(this);
         takes.setStudent(student);

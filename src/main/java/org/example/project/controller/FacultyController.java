@@ -12,6 +12,8 @@ import jakarta.validation.Valid;
 
 import java.util.List;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/faculty")
@@ -20,6 +22,7 @@ public class FacultyController {
     private final FacultyService facultyService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public ResponseEntity<?> addFaculty(@RequestBody List<CreateFacultyDto> dtos) {
         List<FacultyResponseDto> response;
         try {
@@ -31,12 +34,14 @@ public class FacultyController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR', 'INSTRUCTOR', 'STUDENT')")
     public ResponseEntity<List<FacultyResponseDto>> getFaculties() {
         List<FacultyResponseDto> response = facultyService.getAll();
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public ResponseEntity<FacultyResponseDto> updateFaculty(
             @PathVariable Long id,
             @Valid @RequestBody UpdateFacultyDto dto) {
@@ -45,8 +50,10 @@ public class FacultyController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteFaculty(@PathVariable Long id) {
         facultyService.deleteFaculty(id);
         return ResponseEntity.noContent().build();
     }
 }
+
